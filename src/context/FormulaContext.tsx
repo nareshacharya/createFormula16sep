@@ -400,10 +400,14 @@ export const FormulaProvider: React.FC<FormulaProviderProps> = ({
       setActiveIngredients((prev) => {
         // IMPORTANT: When expanding formula groups, ingredients should be added to the regular ingredients list
         // while maintaining the correct order: directly added ingredients first, then expanded ingredients, then remaining formula groups
+        // AND merging with existing ingredients to avoid duplicates
 
         const regularIngredients: ActiveFormulaItem[] = [];
         const formulaGroups: ActiveFormulaItem[] = [];
         let expandedIngredients: FormulaIngredient[] = [];
+
+        // Create a map of existing ingredients by name for merging
+        const existingIngredientsMap = new Map<string, FormulaIngredient>();
 
         prev.forEach((item) => {
           if ("type" in item && item.type === "formulaGroup") {
@@ -418,20 +422,62 @@ export const FormulaProvider: React.FC<FormulaProviderProps> = ({
               formulaGroups.push(item);
             }
           } else {
-            // Regular ingredient
+            // Regular ingredient - add to map for merging
+            const formulaIngredient = item as FormulaIngredient;
+            if (formulaIngredient.ingredient?.name) {
+              existingIngredientsMap.set(formulaIngredient.ingredient.name, formulaIngredient);
+            }
             regularIngredients.push(item);
           }
         });
 
-        // Maintain proper order: regular ingredients + expanded ingredients + remaining formula groups
+        // Merge expanded ingredients with existing ingredients
+        const mergedIngredients: FormulaIngredient[] = [];
+        const processedNames = new Set<string>();
+
+        // First, add all existing regular ingredients
+        regularIngredients.forEach((item) => {
+          const formulaIngredient = item as FormulaIngredient;
+          if (formulaIngredient.ingredient?.name) {
+            mergedIngredients.push(formulaIngredient);
+            processedNames.add(formulaIngredient.ingredient.name);
+          }
+        });
+
+        // Then, add expanded ingredients, merging quantities if they already exist
+        expandedIngredients.forEach((expandedIngredient) => {
+          if (expandedIngredient.ingredient?.name) {
+            const ingredientName = expandedIngredient.ingredient.name;
+            
+            if (processedNames.has(ingredientName)) {
+              // Ingredient already exists - merge quantities
+              const existingIndex = mergedIngredients.findIndex(
+                (ing) => ing.ingredient.name === ingredientName
+              );
+              if (existingIndex >= 0) {
+                const existing = mergedIngredients[existingIndex];
+                mergedIngredients[existingIndex] = {
+                  ...existing,
+                  quantity: (existing.quantity || 0) + (expandedIngredient.quantity || 0),
+                  concentration: ((existing.quantity || 0) + (expandedIngredient.quantity || 0)) * 100 / batchSize,
+                };
+              }
+            } else {
+              // New ingredient - add it
+              mergedIngredients.push(expandedIngredient);
+              processedNames.add(ingredientName);
+            }
+          }
+        });
+
+        // Maintain proper order: merged ingredients + remaining formula groups
         return [
-          ...regularIngredients,
-          ...expandedIngredients,
+          ...mergedIngredients,
           ...formulaGroups,
         ];
       });
     },
-    [saveToHistory]
+    [saveToHistory, batchSize]
   );
 
   const updateIngredient = useCallback(

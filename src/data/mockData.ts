@@ -9,7 +9,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '470-82-6',
     category: 'Natural',
     defaultConcentration: 10.0,
-    costPerKg: 1.0,
+    costPerKg: 15.0,
     tags: ['floral', 'herbal', 'calming'],
     attributes: {
       intensity: 8,
@@ -34,7 +34,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: 'RB-101-2024',
     category: 'Synthetic',
     defaultConcentration: 5.0,
-    costPerKg: 2.5,
+    costPerKg: 25.0,
     tags: ['rose', 'floral', 'complex'],
     attributes: {
       intensity: 9,
@@ -120,7 +120,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8007-75-8',
     category: 'Natural',
     defaultConcentration: 1.5,
-    costPerKg: 0.12,
+    costPerKg: 12.0,
     tags: ['citrus', 'fresh', 'energizing'],
     attributes: {
       intensity: 7,
@@ -160,7 +160,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8024-06-4',
     category: 'Natural',
     defaultConcentration: 0.5,
-    costPerKg: 2.50,
+    costPerKg: 250.0,
     tags: ['sweet', 'warm', 'comforting'],
     attributes: {
       intensity: 6,
@@ -185,7 +185,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: 'CAPT-MW-2024',
     category: 'Synthetic',
     defaultConcentration: 3.0,
-    costPerKg: 8.75,
+    costPerKg: 875.0,
     tags: ['woody', 'captive', 'exclusive'],
     attributes: {
       intensity: 10,
@@ -212,7 +212,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8006-87-9',
     category: 'Natural',
     defaultConcentration: 1.0,
-    costPerKg: 3.20,
+    costPerKg: 320.0,
     tags: ['woody', 'earthy', 'grounding'],
     attributes: {
       intensity: 5,
@@ -237,7 +237,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '54464-57-2',
     category: 'Synthetic',
     defaultConcentration: 3.0,
-    costPerKg: 0.08,
+    costPerKg: 8.0,
     tags: ['woody', 'amber', 'fixative'],
     attributes: {
       intensity: 4,
@@ -269,7 +269,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '24851-98-7',
     category: 'Synthetic',
     defaultConcentration: 2.5,
-    costPerKg: 0.22,
+    costPerKg: 22.0,
     tags: ['floral', 'jasmine', 'fresh'],
     attributes: {
       intensity: 6,
@@ -301,7 +301,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '64-17-5',
     category: 'Solvent',
     defaultConcentration: 0,
-    costPerKg: 0.02,
+    costPerKg: 2.0,
     tags: ['solvent', 'carrier', 'base'],
     attributes: {
       intensity: 1,
@@ -326,7 +326,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8007-01-0',
     category: 'Natural',
     defaultConcentration: 0.3,
-    costPerKg: 8.50,
+    costPerKg: 850.0,
     tags: ['floral', 'romantic', 'luxurious'],
     attributes: {
       intensity: 9,
@@ -366,7 +366,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8014-09-3',
     category: 'Natural',
     defaultConcentration: 0.8,
-    costPerKg: 1.80,
+    costPerKg: 18.0,
     tags: ['earthy', 'woody', 'mysterious'],
     attributes: {
       intensity: 7,
@@ -391,7 +391,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '138-86-3',
     category: 'Synthetic',
     defaultConcentration: 1.0,
-    costPerKg: 0.05,
+    costPerKg: 5.0,
     tags: ['citrus', 'fresh', 'clean'],
     attributes: {
       intensity: 6,
@@ -603,7 +603,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8006-87-9',
     category: 'Natural',
     defaultConcentration: 2.0,
-    costPerKg: 25.0,
+    costPerKg: 250.0,
     tags: ['woody', 'earthy', 'grounding'],
     attributes: {
       intensity: 6,
@@ -704,6 +704,139 @@ export const mockIngredients: Ingredient[] = [
           component: 'Limonene',
           allergenType: 'EU Allergen',
           concentration: 90.0,
+          regulatoryLimit: 0.001,
+          status: 'warning'
+        }
+      ],
+      regulatoryStatus: 'approved'
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: 'INGR-0022',
+    name: 'IPM Carrier',
+    casNumber: '110-27-0',
+    category: 'Solvent',
+    defaultConcentration: 0,
+    costPerKg: 0.15,
+    tags: ['solvent', 'carrier', 'base'],
+    attributes: {
+      intensity: 1,
+      family: 'Solvent',
+      note: 'Carrier',
+      volatility: 'low',
+      solubility: 'oil'
+    },
+    description: 'Isopropyl myristate carrier oil for fragrance formulation. Excellent skin feel.',
+    safetyNotes: 'Generally safe. Non-comedogenic carrier oil.',
+    regulatoryStatus: 'GRAS',
+    compliance: {
+      allergenImpact: [],
+      regulatoryStatus: 'approved'
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: 'INGR-0023',
+    name: 'Jojoba Oil Base',
+    casNumber: '61789-91-1',
+    category: 'Natural',
+    defaultConcentration: 0,
+    costPerKg: 0.25,
+    tags: ['natural', 'carrier', 'base'],
+    attributes: {
+      intensity: 1,
+      family: 'Natural',
+      note: 'Carrier',
+      volatility: 'low',
+      solubility: 'oil'
+    },
+    description: 'Pure jojoba oil carrier base. Excellent stability and skin compatibility.',
+    safetyNotes: 'Generally safe. Non-comedogenic natural carrier.',
+    regulatoryStatus: 'GRAS',
+    compliance: {
+      allergenImpact: [],
+      regulatoryStatus: 'approved'
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: 'INGR-0024',
+    name: 'Grape Seed Oil Base',
+    casNumber: '8001-62-1',
+    category: 'Natural',
+    defaultConcentration: 0,
+    costPerKg: 0.18,
+    tags: ['natural', 'carrier', 'base'],
+    attributes: {
+      intensity: 1,
+      family: 'Natural',
+      note: 'Carrier',
+      volatility: 'low',
+      solubility: 'oil'
+    },
+    description: 'Cold-pressed grape seed oil carrier base. Light texture and excellent absorption.',
+    safetyNotes: 'Generally safe. Natural carrier oil with antioxidant properties.',
+    regulatoryStatus: 'GRAS',
+    compliance: {
+      allergenImpact: [],
+      regulatoryStatus: 'approved'
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: 'INGR-0025',
+    name: 'Fractionated Coconut Oil',
+    casNumber: '8001-31-8',
+    category: 'Natural',
+    defaultConcentration: 0,
+    costPerKg: 0.22,
+    tags: ['natural', 'carrier', 'base'],
+    attributes: {
+      intensity: 1,
+      family: 'Natural',
+      note: 'Carrier',
+      volatility: 'low',
+      solubility: 'oil'
+    },
+    description: 'Fractionated coconut oil carrier base. Stable, odorless, and long-lasting.',
+    safetyNotes: 'Generally safe. Non-comedogenic natural carrier.',
+    regulatoryStatus: 'GRAS',
+    compliance: {
+      allergenImpact: [],
+      regulatoryStatus: 'approved'
+    },
+    createdAt: new Date('2024-01-01'),
+    updatedAt: new Date('2024-01-01')
+  },
+  {
+    id: 'INGR-0026',
+    name: 'Sweet Almond Oil Base',
+    casNumber: '8007-69-0',
+    category: 'Natural',
+    defaultConcentration: 0,
+    costPerKg: 0.20,
+    tags: ['natural', 'carrier', 'base'],
+    attributes: {
+      intensity: 1,
+      family: 'Natural',
+      note: 'Carrier',
+      volatility: 'low',
+      solubility: 'oil'
+    },
+    description: 'Pure sweet almond oil carrier base. Rich in vitamins and emollient properties.',
+    safetyNotes: 'Generally safe. Nut allergen warning - check for allergies.',
+    regulatoryStatus: 'GRAS',
+    compliance: {
+      allergenImpact: [
+        {
+          component: 'Almond Extract',
+          allergenType: 'Nut Allergen',
+          concentration: 100.0,
           regulatoryLimit: 0.001,
           status: 'warning'
         }
@@ -927,7 +1060,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-001',
       name: 'Classic Lavender',
-      active: 88.5,
+      active: 100.0,
       base: 'Ethanol 96%',
       ph: 6.8,
       cost: 42.30,
@@ -945,7 +1078,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-002',
       name: 'Citrus Fresh',
-      active: 91.2,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 7.1,
       cost: 38.75,
@@ -964,7 +1097,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-003',
       name: 'Vanilla Dreams',
-      active: 85.3,
+      active: 100.0,
       base: 'IPM Base',
       ph: 6.5,
       cost: 51.20,
@@ -983,7 +1116,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-004',
       name: 'Ocean Breeze',
-      active: 89.7,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 7.2,
       cost: 35.90,
@@ -995,14 +1128,14 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
       { ingredientName: 'Lemon Essential Oil', concentration: 14.5 },
       { ingredientName: 'Neroli Essential Oil', concentration: 6.8 },
       { ingredientName: 'Hedione', concentration: 2.3 },
-      { ingredientName: 'Ethanol 95%', concentration: 57.9 }
+      { ingredientName: 'Ethanol 95%', concentration: 58.2 }
     ]
   },
   {
     metadata: {
       id: 'REF-005',
       name: 'Woody Amber',
-      active: 82.4,
+      active: 100.0,
       base: 'Jojoba Oil',
       ph: 6.3,
       cost: 67.80,
@@ -1021,7 +1154,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-006',
       name: 'Rose Garden',
-      active: 87.6,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 6.9,
       cost: 89.45,
@@ -1040,7 +1173,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-007',
       name: 'Spiced Citrus',
-      active: 90.3,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 7.0,
       cost: 41.25,
@@ -1059,7 +1192,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-008',
       name: 'Green Tea Zen',
-      active: 85.9,
+      active: 100.0,
       base: 'Grape Seed Oil',
       ph: 6.7,
       cost: 52.30,
@@ -1078,7 +1211,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-009',
       name: 'Midnight Oud',
-      active: 79.8,
+      active: 100.0,
       base: 'Fractionated Coconut Oil',
       ph: 6.1,
       cost: 124.75,
@@ -1097,7 +1230,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-010',
       name: 'Summer Meadow',
-      active: 88.1,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 7.1,
       cost: 36.85,
@@ -1116,7 +1249,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-011',
       name: 'Tropical Paradise',
-      active: 92.5,
+      active: 100.0,
       base: 'Ethanol 95%',
       ph: 7.3,
       cost: 44.60,
@@ -1135,7 +1268,7 @@ export const mockReferenceFormulas: ReferenceFormula[] = [
     metadata: {
       id: 'REF-012',
       name: 'Winter Spice',
-      active: 84.7,
+      active: 100.0,
       base: 'Sweet Almond Oil',
       ph: 6.4,
       cost: 58.90,

@@ -307,19 +307,15 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
     },
   ];
 
-  const calculateCost = (ingredient: any, amount: number): number => {
-    // Cost calculation - convert costPerKg to cost per gram
-    // Assuming 1ml ≈ 1g for simplicity (can be adjusted based on density)
-    const costPerGram = ingredient.ingredient.costPerKg || 0;
-    return costPerGram * amount;
-  };
 
   const calculateContributionCost = (
     ingredient: any,
     amount: number
   ): number => {
-    // Contribution cost based on amount in grams
-    return calculateCost(ingredient, amount);
+    // Contribution cost = amount(g) * costPerKg / 1000
+    // This gives the cost in Euros for the given amount in grams
+    const costPerKg = ingredient.ingredient?.costPerKg || 0;
+    return (amount * costPerKg) / 1000;
   };
 
   const handleAmountChange = (id: string, amount: number) => {
@@ -738,9 +734,9 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
                                     "Unknown Ingredient"}
                                 </TableCell>
                                 <TableCell
-                                  title={`Concentration: ${ingredient.concentration}%`}
+                                  title={`Amount: ${ingredient.quantity}g`}
                                 >
-                                  {ingredient.concentration}%
+                                  {ingredient.quantity?.toFixed(1) || 0}g
                                 </TableCell>
                                 <TableCell
                                   title={`Cost: €${(ingredient.ingredient?.costPerKg || 0).toFixed(3)} per kg`}
@@ -751,9 +747,10 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
                                   ).toFixed(3)}
                                 </TableCell>
                                 <TableCell
-                                  title={`Amount: ${ingredient.quantity}g`}
+                                  title={`Contribution: €${calculateContributionCost(ingredient, ingredient.quantity || 0).toFixed(3)}`}
                                 >
-                                  {ingredient.quantity?.toFixed(1) || 0}g
+                                  €
+                                  {calculateContributionCost(ingredient, ingredient.quantity || 0).toFixed(3)}
                                 </TableCell>
                                 <TableCell style={{ textAlign: "center" }}>
                                   <span
@@ -1135,9 +1132,9 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
                                     "Unknown Ingredient"}
                                 </TableCell>
                                 <TableCell
-                                  title={`Concentration: ${ingredient.concentration}%`}
+                                  title={`Amount: ${ingredient.quantity}g`}
                                 >
-                                  {ingredient.concentration}%
+                                  {ingredient.quantity?.toFixed(1) || 0}g
                                 </TableCell>
                                 <TableCell
                                   title={`Cost: €${(ingredient.ingredient?.costPerKg || 0).toFixed(3)} per kg`}
@@ -1148,9 +1145,10 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
                                   ).toFixed(3)}
                                 </TableCell>
                                 <TableCell
-                                  title={`Amount: ${ingredient.quantity}g`}
+                                  title={`Contribution: €${calculateContributionCost(ingredient, ingredient.quantity || 0).toFixed(3)}`}
                                 >
-                                  {ingredient.quantity?.toFixed(1) || 0}g
+                                  €
+                                  {calculateContributionCost(ingredient, ingredient.quantity || 0).toFixed(3)}
                                 </TableCell>
                                 <TableCell style={{ textAlign: "center" }}>
                                   <span
@@ -1395,6 +1393,51 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
           </TableRow>
         )}
 
+        {/* Totals Row */}
+        {allIngredients.length > 0 && !showInlineSearch && (
+          <TableRow
+            style={{
+              gridTemplateColumns: "2.8fr 1.2fr 1.2fr 1.2fr 1fr",
+              backgroundColor: "#f8fafc",
+              borderTop: "2px solid #e2e8f0",
+              fontWeight: "600",
+              fontSize: "14px",
+            }}
+          >
+            <TableCell style={{ fontWeight: "600", color: "#374151" }}>
+              Total
+            </TableCell>
+            <TableCell style={{ fontWeight: "600", color: "#374151" }}>
+              {allIngredients
+                .filter((item) => !item.isMissing)
+                .reduce((sum, item) => sum + (item.quantity || item.amount || 0), 0)
+                .toFixed(1)}g
+            </TableCell>
+            <TableCell style={{ color: "#6b7280", fontStyle: "italic" }}>
+              —
+            </TableCell>
+            <TableCell style={{ fontWeight: "600", color: "#374151" }}>
+              €{allIngredients
+                .filter((item) => !item.isMissing)
+                .reduce((sum, item) => {
+                  const quantity = item.quantity || item.amount || 0;
+                  return sum + calculateContributionCost(item, quantity);
+                }, 0)
+                .toFixed(3)}
+            </TableCell>
+            <TableCell style={{ textAlign: "center" }}>
+              <span
+                style={{
+                  color: "#9ca3af",
+                  fontSize: "0.75rem",
+                }}
+              >
+                —
+              </span>
+            </TableCell>
+          </TableRow>
+        )}
+
         {allIngredients.length === 0 && !showInlineSearch && (
           <EmptyState>No ingredients in formula</EmptyState>
         )}
@@ -1440,10 +1483,22 @@ const ActiveFormulaColumn: React.FC<ActiveFormulaColumnProps> = ({
           createdAt: new Date(),
           updatedAt: new Date(),
         }}
-        onNormalize={(_normalizedFormula) => {
+        onNormalize={(normalizedFormula) => {
           // Update the active formula with normalized ingredients
-          // Here you would call a context method to update the formula
-          // For now, we'll just show a success message
+          // Convert normalized formula ingredients back to active ingredients
+          const normalizedIngredients = normalizedFormula.ingredients.map((ingredient) => ({
+            ...ingredient,
+            id: ingredient.id || `${ingredient.ingredient.id}-${Date.now()}`,
+          }));
+          
+          // Update each ingredient in the active formula
+          normalizedIngredients.forEach((ingredient) => {
+            onUpdateIngredient(ingredient.id, {
+              quantity: ingredient.quantity,
+              concentration: ingredient.concentration,
+            });
+          });
+          
           showSuccess("Formula normalized successfully", 3000);
           setShowNormalizeModal(false);
         }}
