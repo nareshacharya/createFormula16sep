@@ -1,0 +1,136 @@
+{
+  "caseId": "CASE-PERFUMER-001",
+  "formulaName": "Citrus Fresh Summer Blend",
+  "formulaVersion": "1.2",
+  "author": "Jane Smith - Senior Perfumer",
+  "createdDate": "2025-01-15T10:30:00.000Z",
+  "lastModified": "2025-01-15T14:45:00.000Z",
+  "batchConfiguration": {
+    "batchSize": 100,
+    "batchUnit": "ml"
+  },
+  "ingredients": [
+    {
+      "ingredientId": "ing_bergamot_001",
+      "ingredientName": "Bergamot Essential Oil",
+      "casNumber": "8007-75-8",
+      "concentration": 12.5,
+      "quantity": 12.5,
+      "unit": "ml",
+      "cost": 31.25,
+      "category": "Natural",
+      "supplier": "Premium Aromatics Ltd",
+      "regulatoryStatus": "IFRA Compliant",
+      "allergenRisk": "low",
+      "notes": "Top note - bright citrus character",
+      "addedDate": "2025-01-15T10:32:00.000Z",
+      "lastModified": "2025-01-15T14:20:00.000Z"
+    },
+    {
+      "ingredientId": "ing_lemon_002", 
+      "ingredientName": "Lemon Essential Oil",
+      "casNumber": "8008-56-8",
+      "concentration": 8.0,
+      "quantity": 8.0,
+      "unit": "ml",
+      "cost": 16.00,
+      "category": "Natural",
+      "supplier": "Premium Aromatics Ltd",
+      "regulatoryStatus": "IFRA Compliant", 
+      "allergenRisk": "low",
+      "notes": "Top note - fresh zesty accent",
+      "addedDate": "2025-01-15T10:35:00.000Z",
+      "lastModified": "2025-01-15T14:20:00.000Z"
+    },
+    {
+      "ingredientId": "ing_hedione_003",
+      "ingredientName": "Hedione",
+      "casNumber": "24851-98-7",
+      "concentration": 15.0,
+      "quantity": 15.0,
+      "unit": "ml",
+      "cost": 45.00,
+      "category": "Synthetic",
+      "supplier": "Firmenich",
+      "regulatoryStatus": "IFRA Compliant",
+      "allergenRisk": "low", 
+      "notes": "Heart note - radiant jasmine facet",
+      "addedDate": "2025-01-15T11:10:00.000Z",
+      "lastModified": "2025-01-15T14:25:00.000Z"
+    },
+    {
+      "ingredientId": "ing_cetalox_004",
+      "ingredientName": "Cetalox",
+      "casNumber": "13171-00-1", 
+      "concentration": 20.0,
+      "quantity": 20.0,
+      "unit": "ml",
+      "cost": 60.00,
+      "category": "Synthetic",
+      "supplier": "Firmenich",
+      "regulatoryStatus": "IFRA Compliant",
+      "allergenRisk": "low",
+      "notes": "Base note - clean ambergris character",
+      "addedDate": "2025-01-15T11:45:00.000Z", 
+      "lastModified": "2025-01-15T14:30:00.000Z"
+    },
+    {
+      "ingredientId": "ing_ethanol_005",
+      "ingredientName": "Ethanol 95%",
+      "casNumber": "64-17-5",
+      "concentration": 44.5,
+      "quantity": 44.5,
+      "unit": "ml",
+      "cost": 4.45,
+      "category": "Solvent",
+      "supplier": "Industrial Chemicals Co",
+      "regulatoryStatus": "FDA Approved",
+      "allergenRisk": "low",
+      "notes": "Solvent - carrier for fragrance oils",
+      "addedDate": "2025-01-15T12:00:00.000Z",
+      "lastModified": "2025-01-15T14:35:00.000Z"
+    }
+  ],
+  "formulaSummary": {
+    "totalWeight": 100.0,
+    "totalCost": 156.70,
+    "totalConcentration": 100.0,
+    "averageCostPerKg": 1.567,
+    "ingredientCount": 5,
+    "costBreakdown": {
+      "naturalIngredients": 47.25,
+      "syntheticIngredients": 105.00,
+      "solvents": 4.45,
+      "functional": 0.00
+    }
+  },
+  "complianceStatus": {
+    "status": "compliant",
+    "lastChecked": "2025-01-15T14:45:00.000Z",
+    "notes": "All ingredients IFRA compliant, concentration limits verified"
+  },
+  "metadata": {
+    "totalIngredients": 5,
+    "formulaComplexity": "simple",
+    "estimatedProductionCost": 156.70,
+    "sustainabilityScore": 7.2,
+    "keyCharacteristics": [
+      "Fresh citrus opening",
+      "Floral heart with jasmine facets", 
+      "Clean musky base",
+      "Suitable for daily wear",
+      "Unisex appeal"
+    ],
+    "targetApplication": "Eau de Toilette",
+    "recommendedAge": "10-100ml bottles",
+    "marketSegment": "Premium Fresh",
+    "seasonality": "Spring/Summer"
+  },
+  "pegaProcessingInfo": {
+    "submittedBy": "PerfumerWorkbench v1.0",
+    "submissionTimestamp": "2025-01-15T14:45:30.000Z",
+    "apiVersion": "v1.2",
+    "validationStatus": "passed",
+    "processingNotes": "Formula successfully validated and integrated with Pega case management"
+  }
+}

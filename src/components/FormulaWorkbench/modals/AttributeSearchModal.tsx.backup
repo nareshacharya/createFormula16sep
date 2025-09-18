@@ -1,0 +1,409 @@
+import React, { useState } from "react";
+import { Icon } from "../../icons";
+import { Modal, Search } from "../../common";
+import { AttributeColumn } from "../types";
+
+interface AttributeSearchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (attribute: {
+    name: string;
+    type: "text" | "number";
+    unit?: string;
+  }) => void;
+  onSelectMultiple?: (
+    attributes: {
+      name: string;
+      type: "text" | "number";
+      unit?: string;
+    }[]
+  ) => void; // New prop for multi-selection
+  selectedAttributes: AttributeColumn[];
+  title: string;
+  allowMultiSelect?: boolean; // New prop to enable/disable multi-selection
+}
+
+const AttributeSearchModal: React.FC<AttributeSearchModalProps> = ({
+  isOpen,
+  onClose,
+  onSelect,
+  onSelectMultiple,
+  selectedAttributes,
+  title,
+  allowMultiSelect = false,
+}) => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(allowMultiSelect);
+  const [selectedAttributeIds, setSelectedAttributeIds] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Reset selections when modal opens/closes
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedAttributeIds(new Set());
+      setIsMultiSelectMode(allowMultiSelect);
+    }
+  }, [isOpen, allowMultiSelect]);
+
+  const availableAttributes = useMemo(
+    () => [
+      {
+        name: "intensity",
+        type: "number" as const,
+        description: "Fragrance intensity level",
+      },
+      {
+        name: "family",
+        type: "text" as const,
+        description: "Fragrance family category",
+      },
+      {
+        name: "note",
+        type: "text" as const,
+        description: "Fragrance note (top, middle, base)",
+      },
+      {
+        name: "volatility",
+        type: "text" as const,
+        description: "Volatility classification",
+      },
+      {
+        name: "solubility",
+        type: "text" as const,
+        description: "Solubility properties",
+      },
+      {
+        name: "flashPoint",
+        type: "number" as const,
+        unit: "°C",
+        description: "Flash point temperature",
+      },
+      {
+        name: "toxicity",
+        type: "text" as const,
+        description: "Toxicity classification",
+      },
+      {
+        name: "vaporDensity",
+        type: "number" as const,
+        unit: "g/cm³",
+        description: "Vapor density measurement",
+      },
+    ],
+    []
+  );
+
+  const filteredAttributes = useMemo(() => {
+    return availableAttributes.filter(
+      (attr) =>
+        attr.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        attr.description.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [availableAttributes, searchTerm]);
+
+  // Already selected/added attributes
+  const alreadySelectedAttributeNames = useMemo(
+    () => new Set(selectedAttributes.map((attr) => attr.name)),
+    [selectedAttributes]
+  );
+
+  // Multi-selection handlers
+  const handleToggleMultiSelect = () => {
+    setIsMultiSelectMode(!isMultiSelectMode);
+    setSelectedAttributeIds(new Set());
+  };
+
+  const handleSelectAttribute = (attributeName: string, checked: boolean) => {
+    const newSelection = new Set(selectedAttributeIds);
+    if (checked) {
+      newSelection.add(attributeName);
+    } else {
+      newSelection.delete(attributeName);
+    }
+    setSelectedAttributeIds(newSelection);
+  };
+
+  const handleSelectAll = () => {
+    const availableNames = filteredAttributes
+      .filter((attr) => !alreadySelectedAttributeNames.has(attr.name))
+      .map((attr) => attr.name);
+    setSelectedAttributeIds(new Set(availableNames));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedAttributeIds(new Set());
+  };
+
+  const handleAddSelected = () => {
+    if (selectedAttributeIds.size > 0 && onSelectMultiple) {
+      const attributesToAdd = filteredAttributes.filter((attr) =>
+        selectedAttributeIds.has(attr.name)
+      );
+      onSelectMultiple(attributesToAdd);
+      setSelectedAttributeIds(new Set());
+      onClose();
+    }
+  };
+
+  const handleSingleSelect = (attribute: any) => {
+    if (!alreadySelectedAttributeNames.has(attribute.name)) {
+      onSelect(attribute);
+      onClose();
+    }
+  };
+
+  // Header content for multi-select toggle
+  const headerContent = (
+    <SelectionButton
+      onClick={handleToggleMultiSelect}
+      style={{
+        backgroundColor: isMultiSelectMode ? "#e0f2fe" : "transparent",
+        color: isMultiSelectMode ? "#0369a1" : "#6b7280",
+        border: `1px solid ${isMultiSelectMode ? "#0369a1" : "#d1d5db"}`,
+      }}
+    >
+      <Icon name="success" size="sm" />
+      Multi-Select
+    </SelectionButton>
+  );
+
+  // Footer content for multi-select
+  const footerContent =
+    isMultiSelectMode && selectedAttributeIds.size > 0 ? (
+      <>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            padding: "8px 16px",
+            border: "1px solid #d1d5db",
+            borderRadius: "6px",
+            backgroundColor: "white",
+            color: "#374151",
+            cursor: "pointer",
+            fontSize: "14px",
+          }}
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          onClick={handleAddSelected}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: "#3b82f6",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: "pointer",
+            fontSize: "14px",
+            fontWeight: 500,
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+          }}
+        >
+          <Icon name="add" size="sm" />
+          Add Selected ({selectedAttributeIds.size})
+        </button>
+      </>
+    ) : (
+      <button
+        type="button"
+        onClick={onClose}
+        style={{
+          padding: "8px 16px",
+          border: "1px solid #d1d5db",
+          borderRadius: "6px",
+          backgroundColor: "white",
+          color: "#374151",
+          cursor: "pointer",
+          fontSize: "14px",
+          marginLeft: "auto",
+        }}
+      >
+        Close
+      </button>
+    );
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={title}
+      size="medium"
+      headerContent={headerContent}
+      footer={footerContent}
+    >
+      {/* Multi-select controls */}
+      {isMultiSelectMode && (
+        <SelectionModeBar>
+          <div>
+            <span style={{ fontSize: "14px", fontWeight: 500 }}>
+              {selectedAttributeIds.size} of{" "}
+              {
+                filteredAttributes.filter(
+                  (attr) => !alreadySelectedAttributeNames.has(attr.name)
+                ).length
+              }{" "}
+              selected
+            </span>
+          </div>
+          <SelectionActions>
+            <SelectionButton onClick={handleSelectAll}>
+              Select All
+            </SelectionButton>
+            <SelectionButton onClick={handleDeselectAll}>Clear</SelectionButton>
+          </SelectionActions>
+        </SelectionModeBar>
+      )}
+
+      {/* Search */}
+      <div style={{ padding: "16px 24px", borderBottom: "1px solid #e5e7eb" }}>
+        <SearchInput
+          type="text"
+          placeholder="Search attributes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          autoFocus
+        />
+      </div>
+
+      {/* Results */}
+      <div style={{ flex: 1, overflow: "auto", padding: "8px 16px" }}>
+        {filteredAttributes.length === 0 ? (
+          <div
+            style={{
+              padding: "40px 20px",
+              textAlign: "center",
+              color: "#6b7280",
+              fontStyle: "italic",
+              fontSize: "14px",
+            }}
+          >
+            {searchTerm
+              ? "No attributes match your search"
+              : "No attributes available"}
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "8px",
+              padding: "8px 0",
+            }}
+          >
+            {filteredAttributes.map((attribute) => {
+              const isAlreadySelected = alreadySelectedAttributeNames.has(
+                attribute.name
+              );
+              const isCurrentlySelected = selectedAttributeIds.has(
+                attribute.name
+              );
+              const isDisabled = isAlreadySelected;
+
+              const getBorderColor = () => {
+                if (isAlreadySelected) return "1px solid #3bc989";
+                if (isCurrentlySelected && isMultiSelectMode)
+                  return "1px solid #3b82f6";
+                return "1px solid #e5e7eb";
+              };
+
+              const getBackgroundColor = () => {
+                if (isAlreadySelected) return "#f3f4f6";
+                if (isCurrentlySelected && isMultiSelectMode) return "#eff6ff";
+                return "white";
+              };
+              return (
+                <div
+                  key={attribute.name}
+                  onClick={() => {
+                    if (isDisabled) return;
+
+                    if (isMultiSelectMode) {
+                      handleSelectAttribute(
+                        attribute.name,
+                        !isCurrentlySelected
+                      );
+                    } else {
+                      handleSingleSelect(attribute);
+                    }
+                  }}
+                  style={{
+                    padding: "16px",
+                    border: getBorderColor(),
+                    borderRadius: "6px",
+                    cursor: isDisabled ? "default" : "pointer",
+                    backgroundColor: getBackgroundColor(),
+                    opacity: isAlreadySelected ? 0.7 : 1,
+                    transition: "all 0.2s ease",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <FormulaItemContent>
+                    {isMultiSelectMode && !isDisabled && (
+                      <FormulaCheckbox
+                        type="checkbox"
+                        checked={isCurrentlySelected}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleSelectAttribute(
+                            attribute.name,
+                            e.target.checked
+                          );
+                        }}
+                      />
+                    )}
+                    <FormulaDetails>
+                      <div
+                        style={{
+                          fontWeight: 500,
+                          fontSize: "14px",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        {attribute.name}
+                        {attribute.unit && (
+                          <span
+                            style={{
+                              fontSize: "12px",
+                              color: "#6b7280",
+                              marginLeft: "4px",
+                            }}
+                          >
+                            ({attribute.unit})
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#6b7280" }}>
+                        {attribute.description}
+                      </div>
+                    </FormulaDetails>
+                  </FormulaItemContent>
+
+                  {isAlreadySelected && (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        color: "#B8EBC8",
+                      }}
+                    >
+                      <Icon name="success" size="base" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </Modal>
+  );
+};
+
+export default AttributeSearchModal;
