@@ -18,7 +18,8 @@ export interface YieldingOptions {
   targetUnit: "g" | "kg" | "L";
   lossFactor: number; // percentage (0-100)
   rounding: "none" | "0.1g" | "0.01g";
-  scope: "active" | "all";
+  scope: "selected" | "all";
+  selectedIngredients: string[]; // IDs of ingredients to apply yield to
   premixHandling: "preserve" | "flatten";
 }
 
@@ -68,20 +69,20 @@ const RightColumn = styled.div`
 `;
 
 const Section = styled.div`
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 `;
 
 const SectionTitle = styled.h3`
   font-size: 16px;
   font-weight: 700;
   color: #1f2937;
-  margin: 0 0 10px 0;
+  margin: 0 0 6px 0;
 `;
 
 const FormRow = styled.div`
   display: flex;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   align-items: end;
 `;
 
@@ -341,7 +342,8 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
   const [targetUnit, setTargetUnit] = useState<"g" | "kg" | "L">("g");
   const [lossFactor, setLossFactor] = useState(0);
   const [rounding, setRounding] = useState<"none" | "0.1g" | "0.01g">("0.1g");
-  const [scope, setScope] = useState<"active" | "all">("active");
+  const [scope, setScope] = useState<"selected" | "all">("selected");
+  const [selectedIngredients, setSelectedIngredients] = useState<string[]>([]);
   const [premixHandling, setPremixHandling] = useState<"preserve" | "flatten">(
     "preserve"
   );
@@ -378,7 +380,12 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
         !("type" in item) || item.type !== "formulaGroup"
     );
 
-    actualIngredients.forEach((ingredient) => {
+    // Determine which ingredients to apply yield to
+    const ingredientsToScale = scope === "all" 
+      ? actualIngredients 
+      : actualIngredients.filter(ing => selectedIngredients.includes(ing.id));
+
+    ingredientsToScale.forEach((ingredient) => {
       const currentWeight = ingredient.quantity || 0;
       const newWeight = currentWeight * scalingFactor;
 
@@ -400,7 +407,7 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
     });
 
     return deltas;
-  }, [activeIngredients, scalingFactor, rounding]);
+  }, [activeIngredients, scalingFactor, rounding, scope, selectedIngredients]);
 
   // Calculate new totals
   const newTotals = useMemo(() => {
@@ -429,6 +436,7 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
       lossFactor,
       rounding,
       scope,
+      selectedIngredients,
       premixHandling,
     };
 
@@ -484,6 +492,39 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
               </FormRow>
             </Section>
 
+            {scope === "selected" && (
+              <Section>
+                <SectionTitle>Select Ingredients</SectionTitle>
+                <IngredientList>
+                  {activeIngredients
+                    .filter((item): item is FormulaIngredient =>
+                      !("type" in item) || item.type !== "formulaGroup"
+                    )
+                    .map((ingredient) => (
+                      <IngredientItem key={ingredient.id}>
+                        <IngredientCheckbox
+                          type="checkbox"
+                          checked={selectedIngredients.includes(ingredient.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedIngredients(prev => [...prev, ingredient.id]);
+                            } else {
+                              setSelectedIngredients(prev => prev.filter(id => id !== ingredient.id));
+                            }
+                          }}
+                        />
+                        <IngredientLabel>
+                          {ingredient.ingredient?.name || "Unknown"} 
+                          <IngredientAmount>
+                            ({ingredient.quantity?.toFixed(1) || 0}g)
+                          </IngredientAmount>
+                        </IngredientLabel>
+                      </IngredientItem>
+                    ))}
+                </IngredientList>
+              </Section>
+            )}
+
             <Section>
               <SectionTitle>Adjustments</SectionTitle>
               <FormRow>
@@ -521,11 +562,11 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
                 <RadioOption>
                   <RadioInput
                     type="radio"
-                    value="active"
-                    checked={scope === "active"}
-                    onChange={(e) => setScope(e.target.value as "active")}
+                    value="selected"
+                    checked={scope === "selected"}
+                    onChange={(e) => setScope(e.target.value as "selected")}
                   />
-                  Apply to Active trial only
+                  Apply to selected ingredients only
                 </RadioOption>
                 <RadioOption>
                   <RadioInput
@@ -534,38 +575,11 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
                     checked={scope === "all"}
                     onChange={(e) => setScope(e.target.value as "all")}
                   />
-                  All visible trials
+                  Apply to all ingredients
                 </RadioOption>
               </RadioGroup>
             </Section>
 
-            <Section>
-              <SectionTitle>Premix/Base Handling</SectionTitle>
-              <RadioGroup>
-                <RadioOption>
-                  <RadioInput
-                    type="radio"
-                    value="preserve"
-                    checked={premixHandling === "preserve"}
-                    onChange={(e) =>
-                      setPremixHandling(e.target.value as "preserve")
-                    }
-                  />
-                  Scale base totals (preserve internal ratios)
-                </RadioOption>
-                <RadioOption>
-                  <RadioInput
-                    type="radio"
-                    value="flatten"
-                    checked={premixHandling === "flatten"}
-                    onChange={(e) =>
-                      setPremixHandling(e.target.value as "flatten")
-                    }
-                  />
-                  Flatten and scale leaf ingredients
-                </RadioOption>
-              </RadioGroup>
-            </Section>
           </LeftColumn>
 
           <RightColumn>
@@ -624,5 +638,50 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
     </Modal>
   );
 };
+
+const IngredientList = styled.div`
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+`;
+
+const IngredientItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:hover {
+    background: #f8fafc;
+  }
+`;
+
+const IngredientCheckbox = styled.input`
+  margin: 0;
+`;
+
+const IngredientLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  flex: 1;
+`;
+
+const IngredientAmount = styled.span`
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 400;
+`;
 
 export default YieldingModal;

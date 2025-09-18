@@ -21,7 +21,8 @@ export interface YieldingOptions {
   targetUnit: "g" | "kg" | "L";
   lossFactor: number; // percentage (0-100)
   rounding: "none" | "0.1g" | "0.01g";
-  scope: "active" | "all";
+  scope: "selected" | "all";
+  selectedIngredients: string[]; // IDs of ingredients to apply yield to
   premixHandling: "preserve" | "flatten";
 }
 
@@ -770,14 +771,24 @@ export const FormulaProvider: React.FC<FormulaProviderProps> = ({
               };
             }
           } else {
-            // For regular ingredients, scale the quantity
+            // For regular ingredients, check if they should be scaled
             const formulaIngredient = item as FormulaIngredient;
-            return {
-              ...formulaIngredient,
-              quantity: applyRounding(
-                formulaIngredient.quantity * scalingFactor
-              ),
-            };
+            
+            // Only scale if scope is "all" or ingredient is selected
+            const shouldScale = options.scope === "all" || 
+              options.selectedIngredients.includes(formulaIngredient.id);
+            
+            if (shouldScale) {
+              return {
+                ...formulaIngredient,
+                quantity: applyRounding(
+                  formulaIngredient.quantity * scalingFactor
+                ),
+              };
+            } else {
+              // Return unchanged
+              return formulaIngredient;
+            }
           }
         })
       );

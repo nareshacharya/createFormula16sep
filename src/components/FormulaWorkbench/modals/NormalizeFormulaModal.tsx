@@ -101,13 +101,8 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
   // State for normalization parameters
   const [target, setTarget] = useState<NormalizationTarget>("percentage");
   const [targetAmount, setTargetAmount] = useState<number>(0);
-  const [targetUnit, setTargetUnit] = useState<"g" | "kg" | "L">("g");
+  const [targetUnit, setTargetUnit] = useState<"g" | "kg">("g");
   const [scope, setScope] = useState<Scope>("all_unlocked");
-  const [treatLockedAsAnchors, setTreatLockedAsAnchors] = useState(true);
-  const [anchorComplianceOverrides, setAnchorComplianceOverrides] =
-    useState(true);
-  const [balancingMode, setBalancingMode] = useState<"auto" | "manual">("auto");
-  const [balancingRowId, setBalancingRowId] = useState<string>("");
   const [roundingStep, setRoundingStep] = useState<number>(0.01);
   const [roundingMode, setRoundingMode] = useState<RoundingMode>("half_up");
 
@@ -136,22 +131,10 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
     }
   }, [currentTotals.amount, targetAmount]);
 
-  // Determine which rows are anchors (only regular ingredients, not formula groups)
+  // No anchors - all ingredients can be normalized
   const getAnchorRows = useMemo(() => {
-    const regularIngredients = formula.ingredients.filter(
-      (item) => !("type" in item) || item.type !== "formulaGroup"
-    );
-
-    return regularIngredients.filter((ingredient) => {
-      // For now, we'll use a simple approach - ingredients can be marked as locked
-      // This would typically be extended based on your formula structure
-      const extIngredient = ingredient as ExtendedFormulaIngredient;
-      if (treatLockedAsAnchors && extIngredient.isLocked) return true;
-      if (anchorComplianceOverrides && extIngredient.complianceOverride)
-        return true;
-      return false;
-    });
-  }, [formula.ingredients, treatLockedAsAnchors, anchorComplianceOverrides]);
+    return [];
+  }, []);
 
   // Determine which rows can be normalized (only regular ingredients, not formula groups)
   const getNormalizableRows = useMemo(() => {
@@ -174,20 +157,6 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
     );
   }, [formula.ingredients, getAnchorRows, scope, selectedRows]);
 
-  // Auto-select largest unlocked row for balancing
-  const getDefaultBalancingRow = useMemo(() => {
-    if (getNormalizableRows.length === 0) return null;
-    return getNormalizableRows.reduce((largest, current) =>
-      current.quantity > largest.quantity ? current : largest
-    );
-  }, [getNormalizableRows]);
-
-  // Set default balancing row
-  useEffect(() => {
-    if (balancingMode === "auto" && getDefaultBalancingRow) {
-      setBalancingRowId(getDefaultBalancingRow.id);
-    }
-  }, [balancingMode, getDefaultBalancingRow]);
 
   // Rounding function
   const applyRounding = (
@@ -328,27 +297,27 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
     );
     const residual = targetTotalAmount - newSum;
 
-    if (Math.abs(residual) > 0.001 && balancingRowId) {
-      const balancingIndex = rowChanges.findIndex(
-        (change) => change.ingredientId === balancingRowId
+    // Handle rounding residuals by adjusting the largest ingredient
+    if (Math.abs(residual) > 0.001 && rowChanges.length > 0) {
+      const largestIndex = rowChanges.reduce((largestIdx, change, idx) => 
+        change.newAmount > rowChanges[largestIdx].newAmount ? idx : largestIdx, 0
       );
-      if (balancingIndex >= 0) {
-        const newBalancingAmount = Math.max(
-          0,
-          rowChanges[balancingIndex].newAmount + residual
-        );
-        rowChanges[balancingIndex] = {
-          ...rowChanges[balancingIndex],
-          newAmount: newBalancingAmount,
-          delta: newBalancingAmount - rowChanges[balancingIndex].oldAmount,
-          newPercentage: (newBalancingAmount / targetTotalAmount) * 100,
-        };
+      
+      const newBalancingAmount = Math.max(
+        0,
+        rowChanges[largestIndex].newAmount + residual
+      );
+      rowChanges[largestIndex] = {
+        ...rowChanges[largestIndex],
+        newAmount: newBalancingAmount,
+        delta: newBalancingAmount - rowChanges[largestIndex].oldAmount,
+        newPercentage: (newBalancingAmount / targetTotalAmount) * 100,
+      };
 
-        if (newBalancingAmount === 0 && residual > 0) {
-          warnings.push(
-            "Balancing row would become zero. Consider different parameters."
-          );
-        }
+      if (newBalancingAmount === 0 && residual > 0) {
+        warnings.push(
+          "Largest ingredient would become zero. Consider different parameters."
+        );
       }
     }
 
@@ -395,7 +364,6 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
     batchValue,
     getAnchorRows,
     getNormalizableRows,
-    balancingRowId,
     roundingStep,
     roundingMode,
     currentTotals,
@@ -469,7 +437,7 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
                       setTarget(e.target.value as NormalizationTarget)
                     }
                   />
-                  Normalize to 100% composition
+                  Normalize to 100% composition (ensure all ingredients sum to 100%)
                 </RadioOption>
                 <RadioOption>
                   <RadioInput
@@ -487,7 +455,7 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
                       gap: "8px",
                     }}
                   >
-                    Normalize total amount to:
+                    Scale to total batch size:
                     <Input
                       type="number"
                       value={targetAmount}
@@ -500,141 +468,27 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
                     <Select
                       value={targetUnit}
                       onChange={(e) =>
-                        setTargetUnit(e.target.value as "g" | "kg" | "L")
+                        setTargetUnit(e.target.value as "g" | "kg")
                       }
                       disabled={target !== "amount"}
                       style={{ width: "60px" }}
                     >
                       <option value="g">g</option>
                       <option value="kg">kg</option>
-                      <option value="L">L</option>
-                    </Select>
-                  </div>
-                </RadioOption>
-                {batchValue && (
-                  <RadioOption>
-                    <RadioInput
-                      type="radio"
-                      value="batch"
-                      checked={target === "batch"}
-                      onChange={(e) =>
-                        setTarget(e.target.value as NormalizationTarget)
-                      }
-                    />
-                    Normalize total to Batch value ({batchValue}
-                    {batchUnit})
-                  </RadioOption>
-                )}
-              </RadioGroup>
-            </Section>
-
-            <Section>
-              <SectionTitle>Scope</SectionTitle>
-              <RadioGroup>
-                <RadioOption>
-                  <RadioInput
-                    type="radio"
-                    value="all_unlocked"
-                    checked={scope === "all_unlocked"}
-                    onChange={(e) => setScope(e.target.value as Scope)}
-                  />
-                  All unlocked rows
-                </RadioOption>
-                {selectedRows.length > 0 && (
-                  <RadioOption>
-                    <RadioInput
-                      type="radio"
-                      value="selected_rows"
-                      checked={scope === "selected_rows"}
-                      onChange={(e) => setScope(e.target.value as Scope)}
-                    />
-                    Only selected rows ({selectedRows.length} selected)
-                  </RadioOption>
-                )}
-              </RadioGroup>
-            </Section>
-
-            <Section>
-              <SectionTitle>Anchors (don't change)</SectionTitle>
-              <CheckboxGroup>
-                <CheckboxOption>
-                  <CheckboxInput
-                    type="checkbox"
-                    checked={treatLockedAsAnchors}
-                    onChange={(e) => setTreatLockedAsAnchors(e.target.checked)}
-                  />
-                  Treat locked/pinned rows as anchors
-                </CheckboxOption>
-                <CheckboxOption>
-                  <CheckboxInput
-                    type="checkbox"
-                    checked={anchorComplianceOverrides}
-                    onChange={(e) =>
-                      setAnchorComplianceOverrides(e.target.checked)
-                    }
-                  />
-                  Also anchor rows with compliance overrides
-                </CheckboxOption>
-              </CheckboxGroup>
-            </Section>
-
-            <Section>
-              <SectionTitle>
-                Balancing row (handles rounding residuals)
-              </SectionTitle>
-              <RadioGroup>
-                <RadioOption>
-                  <RadioInput
-                    type="radio"
-                    value="auto"
-                    checked={balancingMode === "auto"}
-                    onChange={() => setBalancingMode("auto")}
-                  />
-                  Auto-select largest unlocked
-                  {getDefaultBalancingRow && (
-                    <span style={{ marginLeft: "8px", color: "#64748b" }}>
-                      ({getDefaultBalancingRow.ingredient.name})
-                    </span>
-                  )}
-                </RadioOption>
-                <RadioOption>
-                  <RadioInput
-                    type="radio"
-                    value="manual"
-                    checked={balancingMode === "manual"}
-                    onChange={() => setBalancingMode("manual")}
-                  />
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    Pick from dropdown:
-                    <Select
-                      value={balancingRowId}
-                      onChange={(e) => setBalancingRowId(e.target.value)}
-                      disabled={balancingMode !== "manual"}
-                      style={{ minWidth: "150px" }}
-                    >
-                      <option value="">Select row...</option>
-                      {getNormalizableRows.map((ingredient) => (
-                        <option key={ingredient.id} value={ingredient.id}>
-                          {ingredient.ingredient.name}
-                        </option>
-                      ))}
                     </Select>
                   </div>
                 </RadioOption>
               </RadioGroup>
             </Section>
+
+
+
 
             <Section>
               <SectionTitle>Rounding</SectionTitle>
               <FormRow>
                 <FormGroup>
-                  <Label>Step:</Label>
+                  <Label>Precision:</Label>
                   <Select
                     value={roundingStep}
                     onChange={(e) => setRoundingStep(Number(e.target.value))}
@@ -642,19 +496,6 @@ const NormalizeFormulaModal: React.FC<NormalizeFormulaModalProps> = ({
                     <option value={0.01}>0.01g</option>
                     <option value={0.1}>0.1g</option>
                     <option value={1.0}>1.0g</option>
-                  </Select>
-                </FormGroup>
-                <FormGroup>
-                  <Label>Mode:</Label>
-                  <Select
-                    value={roundingMode}
-                    onChange={(e) =>
-                      setRoundingMode(e.target.value as RoundingMode)
-                    }
-                  >
-                    <option value="half_up">Half up</option>
-                    <option value="down">Down</option>
-                    <option value="bankers">Banker's</option>
                   </Select>
                 </FormGroup>
               </FormRow>
@@ -794,20 +635,20 @@ const RightColumn = styled.div`
 `;
 
 const Section = styled.div`
-  margin-bottom: 18px;
+  margin-bottom: 12px;
 `;
 
 const SectionTitle = styled.h3`
   font-size: 16px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 `;
 
 const RadioGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 `;
 
 const RadioOption = styled.label`
@@ -826,7 +667,7 @@ const RadioInput = styled.input`
 const CheckboxGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 `;
 
 const CheckboxOption = styled.label`

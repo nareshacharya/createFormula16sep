@@ -9,7 +9,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '470-82-6',
     category: 'Natural',
     defaultConcentration: 10.0,
-    costPerKg: 15.0,
+    costPerKg: 0.15,
     tags: ['floral', 'herbal', 'calming'],
     attributes: {
       intensity: 8,
@@ -34,7 +34,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: 'RB-101-2024',
     category: 'Synthetic',
     defaultConcentration: 5.0,
-    costPerKg: 25.0,
+    costPerKg: 0.25,
     tags: ['rose', 'floral', 'complex'],
     attributes: {
       intensity: 9,
@@ -120,7 +120,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8007-75-8',
     category: 'Natural',
     defaultConcentration: 1.5,
-    costPerKg: 12.0,
+    costPerKg: 0.12,
     tags: ['citrus', 'fresh', 'energizing'],
     attributes: {
       intensity: 7,
@@ -160,7 +160,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8024-06-4',
     category: 'Natural',
     defaultConcentration: 0.5,
-    costPerKg: 250.0,
+    costPerKg: 2.50,
     tags: ['sweet', 'warm', 'comforting'],
     attributes: {
       intensity: 6,
@@ -185,7 +185,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: 'CAPT-MW-2024',
     category: 'Synthetic',
     defaultConcentration: 3.0,
-    costPerKg: 875.0,
+    costPerKg: 8.75,
     tags: ['woody', 'captive', 'exclusive'],
     attributes: {
       intensity: 10,
@@ -212,7 +212,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8006-87-9',
     category: 'Natural',
     defaultConcentration: 1.0,
-    costPerKg: 320.0,
+    costPerKg: 3.20,
     tags: ['woody', 'earthy', 'grounding'],
     attributes: {
       intensity: 5,
@@ -237,7 +237,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '54464-57-2',
     category: 'Synthetic',
     defaultConcentration: 3.0,
-    costPerKg: 8.0,
+    costPerKg: 0.08,
     tags: ['woody', 'amber', 'fixative'],
     attributes: {
       intensity: 4,
@@ -269,7 +269,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '24851-98-7',
     category: 'Synthetic',
     defaultConcentration: 2.5,
-    costPerKg: 22.0,
+    costPerKg: 0.22,
     tags: ['floral', 'jasmine', 'fresh'],
     attributes: {
       intensity: 6,
@@ -301,7 +301,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '64-17-5',
     category: 'Solvent',
     defaultConcentration: 0,
-    costPerKg: 2.0,
+    costPerKg: 0.02,
     tags: ['solvent', 'carrier', 'base'],
     attributes: {
       intensity: 1,
@@ -326,7 +326,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8007-01-0',
     category: 'Natural',
     defaultConcentration: 0.3,
-    costPerKg: 850.0,
+    costPerKg: 8.50,
     tags: ['floral', 'romantic', 'luxurious'],
     attributes: {
       intensity: 9,
@@ -366,7 +366,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8014-09-3',
     category: 'Natural',
     defaultConcentration: 0.8,
-    costPerKg: 18.0,
+    costPerKg: 0.18,
     tags: ['earthy', 'woody', 'mysterious'],
     attributes: {
       intensity: 7,
@@ -391,7 +391,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '138-86-3',
     category: 'Synthetic',
     defaultConcentration: 1.0,
-    costPerKg: 5.0,
+    costPerKg: 0.05,
     tags: ['citrus', 'fresh', 'clean'],
     attributes: {
       intensity: 6,
@@ -603,7 +603,7 @@ export const mockIngredients: Ingredient[] = [
     casNumber: '8006-87-9',
     category: 'Natural',
     defaultConcentration: 2.0,
-    costPerKg: 250.0,
+    costPerKg: 2.50,
     tags: ['woody', 'earthy', 'grounding'],
     attributes: {
       intensity: 6,
