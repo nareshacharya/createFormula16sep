@@ -420,7 +420,7 @@ const YieldingModal: React.FC<YieldingModalProps> = ({
         (ing) => ing.id === delta.ingredientId
       );
       const costPerKg = ingredient?.ingredient?.costPerKg || 0;
-      return sum + delta.newWeight * costPerKg;
+      return sum + delta.newWeight * costPerKg / 1000;
     }, 0);
 
     return {

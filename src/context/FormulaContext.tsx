@@ -812,14 +812,14 @@ export const FormulaProvider: React.FC<FormulaProviderProps> = ({
     );
     const totalCost = actualIngredients.reduce(
       (sum, item) =>
-        sum + (item.quantity || 0) * (item.ingredient?.costPerKg || 0),
+        sum + (item.quantity || 0) * (item.ingredient?.costPerKg || 0) / 1000,
       0
     );
     const totalConcentration = actualIngredients.reduce(
       (sum, item) => sum + (item.concentration || 0),
       0
     );
-    const averageCostPerKg = totalWeight > 0 ? totalCost / totalWeight : 0;
+    const averageCostPerKg = totalWeight > 0 ? (totalCost * 1000) / totalWeight : 0;
 
     return {
       totalWeight,
